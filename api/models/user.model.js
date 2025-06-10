@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: "https://fisika.uad.ac.id/wp-content/uploads/blank-profile-picture-973460_1280.png"
+        default: "https://images.app.goo.gl/muP3ujZi6dYmweaB6"
     },
 }, { timestamps: true });
 
