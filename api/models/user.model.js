@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6
     },
+    avatar: {
+        type: String,
+        default: "https://fisika.uad.ac.id/wp-content/uploads/blank-profile-picture-973460_1280.png"
+    },
 }, { timestamps: true });
 
 const User = mongoose.model('User', userSchema);
