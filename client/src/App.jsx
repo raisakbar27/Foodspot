@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import Header from './components/Header';
 import Login from './pages/Login';
 import PrivateRoute from './components/PrivateRoute';
+import CreateList from './pages/CreateList';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
 
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />      
+          <Route path="/create-list" element={<CreateList />} />      
         </Route>
       </Routes>
     </BrowserRouter>

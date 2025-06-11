@@ -11,6 +11,7 @@ import {
   signOutUserSuccess,
   signOutUserFailure,
 } from '../redux/user/userSlice';
+import { Link } from 'react-router-dom';
 
 export default function Profile() {
   const fileRef = useRef(null)
@@ -186,24 +187,36 @@ export default function Profile() {
           className="border bg-gray-100 p-3 rounded-lg"
           onChange={handleChange}
         />
-        <button 
-          disabled={loading} 
+        <button
+          disabled={loading}
           className="bg-slate-500 text-white p-3 rounded-lg uppercase hover:opacity-80 disabled:opacity-50"
         >
-          {loading ? 'Loading...' : 'Update'}
+          {loading ? "Loading..." : "Update"}
         </button>
-
+        <Link className="bg-[#DBA979] text-white p-3 rounded-lg text-center hover:opacity-80" to={"/create-list"}>
+          Add Restaurant
+        </Link>
       </form>
       <div className="mt-4 flex justify-between">
-        <span onClick={handleDelete} className="bg-red-500 text-white p-2 rounded-lg cursor-pointer">
+        <span
+          onClick={handleDelete}
+          className="bg-red-500 text-white p-2 rounded-lg cursor-pointer"
+        >
           Delete Account
         </span>
-        <span onClick={handleLogout} className="bg-red-500 text-white p-2 rounded-lg cursor-pointer">
+        <span
+          onClick={handleLogout}
+          className="bg-red-500 text-white p-2 rounded-lg cursor-pointer"
+        >
           Log Out
         </span>
       </div>
-      <p className="text-red-700 mt-5">{error ? error && "Something went wrong!" : ''}</p>
-      <p className='text-green-700 mt-5'>{updateSuccess ? 'Update Successfully' : ''}</p>
+      <p className="text-red-700 mt-5">
+        {error ? error && "Something went wrong!" : ""}
+      </p>
+      <p className="text-green-700 mt-5">
+        {updateSuccess ? "Update Successfully" : ""}
+      </p>
     </div>
   );
 }
