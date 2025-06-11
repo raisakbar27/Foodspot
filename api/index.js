@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import userRouter from './routers/user.router.js';
 import authRouter from './routers/auth.route.js';
+import cookieParser from 'cookie-parser';
 dotenv.config();
 
 mongoose.connect(process.env.MONGODB).then(() => {
@@ -14,6 +15,8 @@ mongoose.connect(process.env.MONGODB).then(() => {
 const app = express();
 
 app.use(express.json());
+
+app.use(cookieParser());
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
