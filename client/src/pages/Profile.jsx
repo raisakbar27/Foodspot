@@ -3,7 +3,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { 
   updateUserStart, 
   updateUserSuccess, 
-  updateUserFailure 
+  updateUserFailure, 
+  deleteUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  signOutUserStart,
+  signOutUserSuccess,
+  signOutUserFailure,
 } from '../redux/user/userSlice';
 
 export default function Profile() {
@@ -86,6 +92,45 @@ export default function Profile() {
       dispatch(updateUserFailure(error.message));
     }
   };
+  const handleDelete = async () => {
+    try {
+      dispatch(deleteUserStart());
+
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      dispatch(signOutUserStart());
+      const res = await fetch("/api/auth/logout", {
+        method: "GET", 
+        credentials: "include", 
+      });
+
+      const data = await res.json();
+
+      if (data.success === false) {
+        dispatch(signOutUserFailure(data.message));
+        return;
+      }
+      dispatch(signOutUserSuccess(data));
+    } catch (error) {
+      console.error("Logout Error:", error); // log error
+      dispatch(signOutUserFailure(error.message));
+    }
+  };
 
 
   return (
@@ -150,10 +195,10 @@ export default function Profile() {
 
       </form>
       <div className="mt-4 flex justify-between">
-        <span className="bg-red-500 text-white p-2 rounded-lg cursor-pointer">
+        <span onClick={handleDelete} className="bg-red-500 text-white p-2 rounded-lg cursor-pointer">
           Delete Account
         </span>
-        <span className="bg-red-500 text-white p-2 rounded-lg cursor-pointer">
+        <span onClick={handleLogout} className="bg-red-500 text-white p-2 rounded-lg cursor-pointer">
           Log Out
         </span>
       </div>
