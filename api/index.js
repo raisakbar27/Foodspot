@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import userRouter from './routers/user.router.js';
 import authRouter from './routers/auth.route.js';
+import listRouter from './routers/list.route.js';
 import cookieParser from 'cookie-parser';
 dotenv.config();
 
@@ -28,6 +29,8 @@ app.get('/test', (req, res) => {
 
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/list", listRouter);
+
 
 //middleware to handle 404 errors
 app.use((err, req, res, next) => {
