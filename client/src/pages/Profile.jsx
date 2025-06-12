@@ -13,6 +13,7 @@ import {
 } from '../redux/user/userSlice';
 import { Link } from 'react-router-dom';
 
+
 export default function Profile() {
   const fileRef = useRef(null)
   const { currentUser, loading, error } = useSelector((state) => state.user)
@@ -21,7 +22,10 @@ export default function Profile() {
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [showListError, setShowListError] = useState(false);
+  const [userList, setUserList] = useState([]);
   const dispatch = useDispatch();
+
 
   console.log(formData);
   useEffect(() => {
@@ -133,6 +137,23 @@ export default function Profile() {
     }
   };
 
+  const handleShowList = async () => { 
+    try {
+      setShowListError(false);
+      const res = await fetch(`/api/user/list/${currentUser._id}`);
+      const data = await res.json();
+      if (data.success === false) {
+        setShowListError(true);
+        return;
+      }
+      setUserList(data);
+
+    } catch (error) {
+
+      setShowListError(true);
+    }
+  };
+
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -193,7 +214,10 @@ export default function Profile() {
         >
           {loading ? "Loading..." : "Update"}
         </button>
-        <Link className="bg-[#DBA979] text-white p-3 rounded-lg text-center hover:opacity-80" to={"/create-list"}>
+        <Link
+          className="bg-[#DBA979] text-white p-3 rounded-lg text-center hover:opacity-80"
+          to={"/create-list"}
+        >
           Add Restaurant
         </Link>
       </form>
@@ -217,6 +241,45 @@ export default function Profile() {
       <p className="text-green-700 mt-5">
         {updateSuccess ? "Update Successfully" : ""}
       </p>
+      <button
+        onClick={handleShowList}
+        className="text-green-700 w-full cursor-pointer"
+      >
+        Show Restaurant
+      </button>
+      <p className="text-red-700 mt-5">
+        {showListError ? "Error showing lists" : ""}
+      </p>
+
+      {userList && userList.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <h1 className='text-center mt-7 text-2xl font-semibold'>Your List Restaurant</h1>
+          {userList.map((list) => (
+            <div
+              key={list._id}
+              className="border bg-[#DBA979] rounded-lg gap-4 p-3 flex justify-between item-center"
+            >
+              <Link to={`/list/${list._id}`}>
+                <img
+                  src={list.imageUrls[0]}
+                  alt="image-cover"
+                  className="h-16 w-16 object-contain"
+                />
+              </Link>
+              <Link
+                to={`/list/${list._id}`}
+                className="text-slate-700 font-semibold flex-1 hover:underline truncate"
+              >
+                <p>{list.name}</p>
+              </Link>
+              <div className="flex flex-col item-center">
+                <button className="text-red-700 cursor-pointer">Delete</button>
+                <button className="text-red-700 cursor-pointer">Edit</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
