@@ -289,13 +289,13 @@ export default function CreateList() {
           </div>
           <div className="p-5">
             <label htmlFor="rating" className="block mb-1">
-              Cita Rasa Makanan
+              Rating
             </label>
             <div className="flex items-center gap-2 mb-5">
               <input
                 type="range"
                 min="1"
-                max="10"
+                max="5"
                 id="rating"
                 value={formData.rating}
                 onChange={handleChange}
