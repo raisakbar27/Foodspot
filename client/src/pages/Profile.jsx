@@ -154,6 +154,22 @@ export default function Profile() {
     }
   };
 
+  const handleListDelete = async (listId) => {
+    try {
+      const res = await fetch(`/api/list/delete/${listId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        return;
+      }
+
+      setUserList((prev) => prev.filter((list) => list._id !== listId));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
 
   return (
     <div className="p-3 max-w-lg mx-auto">
@@ -273,7 +289,7 @@ export default function Profile() {
                 <p>{list.name}</p>
               </Link>
               <div className="flex flex-col item-center">
-                <button className="text-red-700 cursor-pointer">Delete</button>
+                <button onClick={() => handleListDelete(list._id) } className="text-red-700 cursor-pointer">Delete</button>
                 <button className="text-red-700 cursor-pointer">Edit</button>
               </div>
             </div>
