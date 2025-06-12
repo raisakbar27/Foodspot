@@ -269,7 +269,9 @@ export default function Profile() {
 
       {userList && userList.length > 0 && (
         <div className="flex flex-col gap-4">
-          <h1 className='text-center mt-7 text-2xl font-semibold'>Your List Restaurant</h1>
+          <h1 className="text-center mt-7 text-2xl font-semibold">
+            Your List Restaurant
+          </h1>
           {userList.map((list) => (
             <div
               key={list._id}
@@ -289,8 +291,15 @@ export default function Profile() {
                 <p>{list.name}</p>
               </Link>
               <div className="flex flex-col item-center">
-                <button onClick={() => handleListDelete(list._id) } className="text-red-700 cursor-pointer">Delete</button>
-                <button className="text-red-700 cursor-pointer">Edit</button>
+                <button
+                  onClick={() => handleListDelete(list._id)}
+                  className="text-red-700 cursor-pointer"
+                >
+                  Delete
+                </button>
+                <Link to={`/update-list/${list._id}`}>
+                  <button className="text-red-700 cursor-pointer">Edit</button>
+                </Link>
               </div>
             </div>
           ))}

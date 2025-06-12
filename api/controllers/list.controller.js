@@ -27,3 +27,35 @@ export const deleteList = async (req, res, next) => {
         next(error);
     }
 }
+
+export const updateList = async (req, res, next) => {
+    const list = await List.findById(req.params.id);
+    if (!list) {
+        return next(errorHandler(404, "List not found"));
+    }
+    if (req.user.id !== list.userRef) {
+        return next(errorHandler(401, "You can only update your own list"));
+    }
+    try {
+        const updatedList = await List.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
+        res.status(200).json(updatedList);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getList = async (req, res, next) => {
+    try {
+        const list = await List.findById(req.params.id);
+        if (!list) {
+            return next(errorHandler(404, "List not found"));
+        }
+        res.status(200).json(list);
+    } catch (error) {
+        next(error);
+    }
+}
