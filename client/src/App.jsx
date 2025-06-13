@@ -10,6 +10,7 @@ import PrivateRoute from './components/PrivateRoute';
 import CreateList from './pages/CreateList';
 import UpdateList from './pages/UpdateList';
 import List from './pages/List';
+import Search from './pages/Search';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/list/:listId" element={<List />} />
+        <Route path="/search" element={<Search />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />      

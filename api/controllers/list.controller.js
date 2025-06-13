@@ -59,3 +59,52 @@ export const getList = async (req, res, next) => {
         next(error);
     }
 }
+
+export const getLists = async (req, res, next) => {
+    try {
+        const limit = parseInt(req.query.limit) || 9;
+    const startIndex = parseInt(req.query.startIndex) || 0;
+
+    const searchTerm = req.query.searchTerm || '';
+    const sort = req.query.sort || 'createdAt';
+    const order = req.query.order === 'asc' ? 1 : -1;
+
+    // Handle type multiple values
+    let type = req.query.type;
+    let typeFilter;
+    if (!type || type === 'all') {
+      typeFilter = { $exists: true }; // semua type
+    } else {
+      // split jadi array, trim spasi
+      const typeArray = type.split(',').map(t => t.trim());
+      typeFilter = { $in: typeArray };
+    }
+
+    // Harga filter
+    const minPrice = parseFloat(req.query.minPrice) || 0;
+    const maxPrice = parseFloat(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
+
+    // Rating filter
+    const minRating = parseFloat(req.query.minRating) || 0;
+
+    // Search di name dan description sekaligus dengan regex case insensitive
+    const regex = { $regex: searchTerm, $options: 'i' };
+
+    const lists = await List.find({
+      type: typeFilter,
+      price: { $gte: minPrice, $lte: maxPrice },
+      rating: { $gte: minRating },
+      $or: [
+        { name: regex },
+        { description: regex }
+      ]
+    })
+      .sort({ [sort]: order })
+      .limit(limit)
+      .skip(startIndex);
+
+    return res.status(200).json(lists);
+    } catch (error) {
+        next(error);
+    }
+}
