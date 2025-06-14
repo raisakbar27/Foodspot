@@ -58,10 +58,10 @@ export default function About() {
 
       <div className="mt-12 text-center">
         <p className="text-sm text-gray-500">
-          Dibuat oleh tim FoodSpot dengan cinta dan semangat inovasi kuliner.
+          Dibuat oleh tim FoodSpot dengan cinta dan semangat inovasi.
         </p>
         <Team />
       </div>
     </div>
-  );
+  ); 
 }
