@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import userRouter from './routers/user.router.js';
 import authRouter from './routers/auth.route.js';
 import listRouter from './routers/list.route.js';
+import mlRouter from './routers/ml.route.js';
 import cookieParser from 'cookie-parser';
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.get('/test', (req, res) => {
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/list", listRouter);
+app.use("/api/ml", mlRouter);
 
 
 //middleware to handle 404 errors

@@ -17,7 +17,7 @@ export default function Home() {
           hari. FoodSpot, solusi mudah mencari restoran favorit Anda!
         </div>
         <Link
-          to={"/"}
+          to={"/search"}
           className="text-xs sm:text-sm text-blue-800 font-bold hover:underline"
         >
           Mulai Jelajahi Restoran

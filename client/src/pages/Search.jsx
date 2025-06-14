@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ListItems from "../components/ListItems";
+import MLListItem from "../components/MLListItem";
 
 
 export default function Search() {
@@ -11,10 +12,12 @@ export default function Search() {
       type: [],
       sort: "created_at",
       order: "desc",
+      useML: true,
     });
 
     const [loading, setLoading] = useState();
     const [list, setList] = useState([]);
+    const [mlRecommendations, setMlRecommendations] = useState(null);
     console.log(list);
 
     useEffect(() => {
@@ -25,21 +28,48 @@ export default function Search() {
         const orderFromUrl = urlParams.get('order');
 
         if (searchTermFromUrl || typeFromUrl || sortFromUrl || orderFromUrl) {
+            const useMLFromUrl = urlParams.get('useML');
             setSideBarData({
               searchTerm: searchTermFromUrl || "",
               type: typeFromUrl ? typeFromUrl.split(",") : [],
               sort: sortFromUrl || "created_at",
               order: orderFromUrl || "desc",
+              useML: useMLFromUrl === 'false' ? false : true,
             });
         }
 
         const fetchLists = async () => {
-            setLoading(true);
-            const searchQuery = urlParams.toString();
-            const res = await fetch(`/api/list/get?${searchQuery}`);
-            const data = await res.json();
-            setList(data);
-            setLoading(false);
+            try {
+                setLoading(true);
+                setMlRecommendations(null);
+                
+                // Tambahkan parameter useML ke query
+                urlParams.set('useML', sideBarData.useML);
+                const searchQuery = urlParams.toString();
+                
+                console.log("Fetching with query:", searchQuery);
+                const res = await fetch(`/api/list/get?${searchQuery}`);
+                
+                if (!res.ok) {
+                    throw new Error(`Server responded with status: ${res.status}`);
+                }
+                
+                const data = await res.json();
+                console.log("Response data:", data);
+                
+                // Cek apakah response berisi data ML
+                if (data.ml && data.results) {
+                    setList(data.results);
+                    setMlRecommendations(data.ml);
+                } else {
+                    setList(data);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                setList([]);
+            } finally {
+                setLoading(false);
+            }
         };
 
         fetchLists();
@@ -77,11 +107,13 @@ export default function Search() {
         }
 
         if (e.target.id === 'sort_order') {
-            
             const sort = e.target.value.split('_')[0] || 'created_at';
             const order = e.target.value.split('_')[1] || 'desc';
             setSideBarData({ ...sideBarData, sort, order });
-            
+        }
+        
+        if (e.target.id === 'useML') {
+            setSideBarData({ ...sideBarData, useML: e.target.checked });
         }
     };
 
@@ -92,6 +124,7 @@ export default function Search() {
         urlParams.set("type", sideBarData.type.join(","));
         urlParams.set('sort', sideBarData.sort);
         urlParams.set('order', sideBarData.order);
+        urlParams.set('useML', sideBarData.useML);
         const searchQuery = urlParams.toString();
         navigate(`/search?${searchQuery}`);
     };
@@ -121,7 +154,7 @@ export default function Search() {
                 id="kue"
                 className="w-5"
                 onChange={handleChange}
-                checked={sideBarData.type.includes == "kue"}
+                checked={sideBarData.type.includes("kue")}
               />
               <span>Kue</span>
             </div>
@@ -131,7 +164,7 @@ export default function Search() {
                 id="manis"
                 className="w-5"
                 onChange={handleChange}
-                checked={sideBarData.type.includes == "manis"}
+                checked={sideBarData.type.includes("manis")}
               />
               <span>manis</span>
             </div>
@@ -141,7 +174,7 @@ export default function Search() {
                 id="seafood"
                 className="w-5"
                 onChange={handleChange}
-                checked={sideBarData.type.includes == "seafood"}
+                checked={sideBarData.type.includes("seafood")}
               />
               <span>seafood</span>
             </div>
@@ -151,7 +184,7 @@ export default function Search() {
                 id="pedas"
                 className="w-5"
                 onChange={handleChange}
-                checked={sideBarData.type.includes == "pedas"}
+                checked={sideBarData.type.includes("pedas")}
               />
               <span>pedas</span>
             </div>
@@ -162,7 +195,7 @@ export default function Search() {
                 id="tradisional"
                 className="w-5"
                 onChange={handleChange}
-                checked={sideBarData.type.includes == "tradisional"}
+                checked={sideBarData.type.includes("tradisional")}
               />
               <span>tradisional</span>
             </div>
@@ -172,7 +205,7 @@ export default function Search() {
                 id="minuman"
                 className="w-5"
                 onChange={handleChange}
-                checked={sideBarData.type.includes == "minuman"}
+                checked={sideBarData.type.includes("minuman")}
               />
               <span>minuman</span>
             </div>
@@ -195,6 +228,19 @@ export default function Search() {
               <option value="createAt_asc">Oldest</option>
             </select>
           </div>
+          
+          <div className="flex items-center gap-2">
+            <label htmlFor="useML" className="font-semibold">
+              Use AI Recommendations:
+            </label>
+            <input
+              type="checkbox"
+              id="useML"
+              className="w-5 h-5"
+              onChange={handleChange}
+              checked={sideBarData.useML}
+            />
+          </div>
 
           <button className="bg-slate-700 text-white p-3 rounded-lg hover:opacity-80">
             Search
@@ -206,20 +252,59 @@ export default function Search() {
         <h1 className="text-3xl border-gray-300 font-semibold border-b p-3 text-slate-700">
           Hasil Pencarian
         </h1>
+        
+        {/* Tampilkan hasil pencarian biasa di atas */}
         <div className="p-7 flex flex-wrap gap-4">
           {!loading && list.length === 0 && (
             <p className="text-xl text-gray-500">No results found.</p>
           )}
+          
           {loading && (
             <p className="text-xl text-gray-500 texs-center w-full">
               Loading...
             </p>
           )}
 
-          {!loading &&
-            list &&
-            list.map((list) => <ListItems key={list._id} list={list} />)}
+          {/* Tampilkan hasil pencarian biasa */}
+          {!loading && list && list.length > 0 && (
+            <>
+              <div className="w-full mb-2">
+                <h2 className="text-xl font-semibold text-slate-700">
+                  Hasil Pencarian untuk "{sideBarData.searchTerm}"
+                </h2>
+              </div>
+              {list.map((list) => <ListItems key={list._id} list={list} />)}
+            </>
+          )}
         </div>
+        
+        {/* Tampilkan rekomendasi ML jika ada */}
+        {!loading && mlRecommendations && mlRecommendations.recommendations && mlRecommendations.recommendations.length > 0 && (
+          <div className="px-7 pb-7">
+            <div className="w-full border-t border-gray-300 pt-6 mt-2 mb-4">
+              <h2 className="text-xl font-semibold text-blue-800">
+                Rekomendasi AI untuk "{mlRecommendations.query}"
+              </h2>
+              <p className="text-sm text-blue-600 mt-2 mb-4">
+                {mlRecommendations.query && (
+                  <>
+                    Berdasarkan pencarian "{mlRecommendations.query}", 
+                    berikut restoran dengan {mlRecommendations.matchDescription || "karakteristik serupa"} yang mungkin Anda suka:
+                  </>
+                )}
+                {!mlRecommendations.query && (
+                  <>Restoran yang mungkin Anda suka:</>
+                )}
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap gap-4">
+              {mlRecommendations.recommendations.map((resto) => (
+                <MLListItem key={resto._id} item={resto} />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
