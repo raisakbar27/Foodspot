@@ -1,7 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FaStar } from 'react-icons/fa';
+import { MdLocationOn } from 'react-icons/md';
+import ListItems from '../components/ListItems';
 
 export default function Home() {
+  const [popularRestaurants, setPopularRestaurants] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchPopularRestaurants = async () => {
+      try {
+        setLoading(true);
+        // Gunakan parameter useML=true untuk mendapatkan rekomendasi AI
+        const res = await fetch('/api/list/get?limit=4&useML=true&searchTerm=populer');
+        const data = await res.json();
+        
+        // Jika ada rekomendasi AI, gunakan itu
+        if (data.ml && data.ml.recommendations && data.ml.recommendations.length > 0) {
+          setPopularRestaurants(data.ml.recommendations);
+        } 
+        // Jika tidak ada rekomendasi, gunakan hasil pencarian biasa
+        else if (Array.isArray(data)) {
+          setPopularRestaurants(data);
+        } 
+        // Jika data.results tersedia (format baru)
+        else if (data.results && Array.isArray(data.results)) {
+          setPopularRestaurants(data.results);
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching popular restaurants:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchPopularRestaurants();
+  }, []);
+
   return (
     <div>
       {/* top */}
@@ -24,6 +61,36 @@ export default function Home() {
         </Link>
       </div>
 
+      {/* Restoran Populer */}
+      <div className="max-w-6xl mx-auto p-3 mb-12">
+        <h2 className="text-2xl font-bold text-slate-700 mb-2 border-b pb-2">
+          Restoran Paling Populer
+        </h2>
+        <p className="text-sm text-blue-600 mb-4">
+          Rekomendasi restoran terbaik berdasarkan AI FoodSpot
+        </p>
+        
+        {loading && (
+          <p className="text-center text-gray-500">Loading...</p>
+        )}
+        
+        {!loading && popularRestaurants.length === 0 && (
+          <p className="text-center text-gray-500">Tidak ada restoran yang ditemukan</p>
+        )}
+        
+        <div className="flex flex-wrap gap-4">
+          {!loading && popularRestaurants.map((restaurant) => (
+            <div key={restaurant._id} className="relative">
+              <ListItems list={restaurant} />
+              {restaurant.similarity_score && (
+                <div className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 rounded-md text-sm font-semibold">
+                  {Math.round(restaurant.similarity_score * 100)}% relevan
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
 
     </div>
   );
